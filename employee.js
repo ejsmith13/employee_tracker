@@ -61,7 +61,7 @@ const initialPrompt = () => {
           addEmployee();
           break;
         case "Add department":
-          comingSoon();
+          addDept();
           break;
         case "Add role":
           comingSoon();
@@ -219,15 +219,38 @@ const addEmployee = () => {
         (err, res) => {
           if (err) throw err;
           console.log(`${res.affectedRows} employee inserted!\n`);
-          
+
           initialPrompt();
         }
       );
     });
-
-  
-
 };
+
+const addDept = () => {
+    inquirer
+      .prompt([
+        {
+          name: "dept",
+          type: "input",
+          message: "What is the name of the department you are adding?",
+        }
+      ])
+      .then(({ dept }) => {
+        console.log("Inserting a new Department...\n");
+        connection.query(
+          "INSERT INTO department SET ?",
+          {
+            department: dept
+          },
+          (err, res) => {
+            if (err) throw err;
+            console.log(`${res.affectedRows} department inserted!\n`);
+  
+            initialPrompt();
+          }
+        );
+      });
+  };
 
 const comingSoon = () => {
   console.log("\n-------------------------- \n");
