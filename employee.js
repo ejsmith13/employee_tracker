@@ -16,6 +16,45 @@ const connection = mysql.createConnection({
   database: "tracker_db",
 });
 
+// Connect to the DB
+connection.connect((err) => {
+  if (err) throw err;
+  console.log(`connected as id ${connection.threadId}\n`);
+  startScreen();
+});
+
+const startScreen = () => {
+  console.log("EMPLOYEE MANAGER SYSTEM");
+  initialPrompt();
+};
+
+const initialPrompt = () => {
+  inquirer
+    .prompt({
+      name: "first",
+      message: "What would you like to do?",
+      type: "list",
+      choices: ["View all employees", "View employees by department", "Exit"],
+    })
+    .then(({ first }) => {
+      console.log(`response: ${first}`);
+      switch (first) {
+        case "View all employees":
+          readProducts();
+          break;
+        case "View employees by department":
+          comingSoon();
+          break;
+        case "Exit":
+          console.log("Goodbye");
+          connection.end();
+          break;
+        default:
+          console.log("Please make a selection");
+          initialPrompt();
+      }
+    });
+};
 const readProducts = () => {
   console.log("Selecting all products...\n");
   connection.query("SELECT * FROM employee", (err, res) => {
@@ -23,74 +62,13 @@ const readProducts = () => {
     // Log all results of the SELECT statement
     const table = cTable.getTable(res);
     console.log(table);
-    connection.end();
+    initialPrompt();
   });
 };
 
-//   const deleteProduct = () => {
-//     console.log('Deleting all songs by The rolling stones...\n');
-//     connection.query(
-//       'DELETE FROM music WHERE ?',
-//       {
-//         Artist: 'The Rolling Stones',
-//       },
-//       (err, res) => {
-//         if (err) throw err;
-//         console.log(`${res.affectedRows} products deleted!\n`);
-//         // Call readProducts AFTER the DELETE completes
-//         readProducts();
-//       }
-//     );
-//   };
-
-//   const updateProduct = () => {
-//     console.log('Updating artists...\n');
-//     const query = connection.query(
-//       'UPDATE music SET ? WHERE ?',
-//       [
-//         {
-//           Artist: "Chris Cornell",
-//         },
-//         {
-//           Title: 'Yesterday',
-//         },
-//       ],
-//       (err, res) => {
-//         if (err) throw err;
-//         console.log(`${res.affectedRows} products updated!\n`);
-//         // Call deleteProduct AFTER the UPDATE completes
-//         deleteProduct();
-//       }
-//     );
-
-//     // logs the actual query being run
-//     console.log(query.sql);
-//   };
-
-//   const createProduct = () => {
-//     console.log('Inserting a new product...\n');
-//     const query = connection.query(
-//       'INSERT INTO music SET ?',
-//       {
-//         Title: 'Dancing in the Moonlight',
-//         Artist: "Jubel",
-//         Genre: "Dance",
-//       },
-//       (err, res) => {
-//         if (err) throw err;
-//         console.log(`${res.affectedRows} product inserted!\n`);
-//         // Call updateProduct AFTER the INSERT completes
-//         updateProduct();
-//       }
-//     );
-
-//     // logs the actual query being run
-//     console.log(query.sql);
-//   };
-
-// Connect to the DB
-connection.connect((err) => {
-  if (err) throw err;
-  console.log(`connected as id ${connection.threadId}\n`);
-  readProducts();
-});
+const comingSoon = () => {
+  console.log("-------------------------- \n");
+  console.log("Coming Soon \n");
+  console.log("-------------------------- \n");
+  initialPrompt();
+};
