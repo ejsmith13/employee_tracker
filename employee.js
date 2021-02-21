@@ -52,7 +52,7 @@ const initialPrompt = () => {
           viewEmployees();
           break;
         case "View employees by department":
-          comingSoon();
+          employeeDept();
           break;
         case "View employees by role":
           comingSoon();
@@ -96,6 +96,40 @@ const viewEmployees = () => {
     console.log(table);
     initialPrompt();
   });
+};
+
+const employeeDept = () => {
+  inquirer
+    .prompt({
+      name: "department",
+      type: "list",
+      message: "Which department would you like to see?",
+      choices: [
+        "Reservations",
+        "Human Resources",
+        "Front Desk",
+        "Facilities",
+        "House Keeping",
+      ],
+    })
+    .then(({ department }) => {
+      console.log(`You chose: ${department}`);
+
+      let query =
+        "SELECT employee.id, employee.first_name, employee.last_name, role.title, department.department,";
+      query +=
+        "role.salary, employee.manager_id FROM ((role INNER JOIN department ON department.id =";
+      query +=
+        "role.department_id) INNER JOIN employee ON employee.role_id = role.id) WHERE (department.department = ?);";
+
+      connection.query(query, department, (err, res) => {
+        if (err) throw err;
+        // Log all results of the SELECT statement
+        const table = cTable.getTable(res);
+        console.log(table);
+        initialPrompt();
+      });
+    });
 };
 
 const comingSoon = () => {
