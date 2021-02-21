@@ -34,15 +34,39 @@ const initialPrompt = () => {
       name: "first",
       message: "What would you like to do?",
       type: "list",
-      choices: ["View all employees", "View employees by department", "Exit"],
+      choices: [
+        "View all employees",
+        "View employees by department",
+        "View employees by role",
+        "Add employee",
+        "Add department",
+        "Add role",
+        "Update employee role",
+        "Exit",
+      ],
     })
     .then(({ first }) => {
       console.log(`response: ${first}`);
       switch (first) {
         case "View all employees":
-          readProducts();
+          viewEmployees();
           break;
         case "View employees by department":
+          comingSoon();
+          break;
+        case "View employees by role":
+          comingSoon();
+          break;
+        case "Add employee":
+          comingSoon();
+          break;
+        case "Add department":
+          comingSoon();
+          break;
+        case "Add role":
+          comingSoon();
+          break;
+        case "Update employee role":
           comingSoon();
           break;
         case "Exit":
@@ -55,9 +79,17 @@ const initialPrompt = () => {
       }
     });
 };
-const readProducts = () => {
-  console.log("Selecting all products...\n");
-  connection.query("SELECT * FROM employee", (err, res) => {
+const viewEmployees = () => {
+  console.log("Selecting all employees...\n");
+
+  let query =
+    "SELECT employee.id, employee.first_name, employee.last_name, role.title, department.department,";
+  query +=
+    "role.salary, employee.manager_id FROM ((role INNER JOIN department ON department.id =";
+  query +=
+    "role.department_id) INNER JOIN employee ON employee.role_id = role.id);";
+
+  connection.query(query, (err, res) => {
     if (err) throw err;
     // Log all results of the SELECT statement
     const table = cTable.getTable(res);
@@ -67,8 +99,8 @@ const readProducts = () => {
 };
 
 const comingSoon = () => {
-  console.log("-------------------------- \n");
-  console.log("Coming Soon \n");
+  console.log("\n-------------------------- \n");
+  console.log("Coming Soon, please make another choice. \n");
   console.log("-------------------------- \n");
   initialPrompt();
 };
