@@ -64,7 +64,7 @@ const initialPrompt = () => {
           addDept();
           break;
         case "Add role":
-          comingSoon();
+          addRole();
           break;
         case "Update employee role":
           comingSoon();
@@ -227,30 +227,83 @@ const addEmployee = () => {
 };
 
 const addDept = () => {
-    inquirer
-      .prompt([
+  inquirer
+    .prompt([
+      {
+        name: "dept",
+        type: "input",
+        message: "What is the name of the department you are adding?",
+      },
+    ])
+    .then(({ dept }) => {
+      console.log("Inserting a new Department...\n");
+      connection.query(
+        "INSERT INTO department SET ?",
         {
-          name: "dept",
-          type: "input",
-          message: "What is the name of the department you are adding?",
+          department: dept,
+        },
+        (err, res) => {
+          if (err) throw err;
+          console.log(`${res.affectedRows} department inserted!\n`);
+
+          initialPrompt();
         }
-      ])
-      .then(({ dept }) => {
-        console.log("Inserting a new Department...\n");
-        connection.query(
-          "INSERT INTO department SET ?",
-          {
-            department: dept
-          },
-          (err, res) => {
-            if (err) throw err;
-            console.log(`${res.affectedRows} department inserted!\n`);
-  
-            initialPrompt();
-          }
-        );
-      });
-  };
+      );
+    });
+};
+
+const addRole = () => {
+  inquirer
+    .prompt([
+      {
+        name: "dept",
+        type: "confirm",
+        message: "Does this role belong in an already existing Department?",
+      },
+    ])
+    .then(({ dept }) => {
+      if (dept === false) {
+        console.log("\n Please add the appropriate Department first \n ------------------------------------------------------\n ")
+        addDept();
+      } else {
+        inquirer
+          .prompt([
+            {
+              name: "role",
+              type: "input",
+              message: "What role are you adding?",
+            },
+            {
+              name: "pay",
+              type: "input",
+              message: "What is the yearly salary?",
+            },
+            {
+              name: "dept",
+              type: "input",
+              message: "What is the department id for this role?",
+            },
+          ])
+          .then(({ role, pay, dept }) => {
+            console.log("Inserting a new Role...\n");
+            connection.query(
+              "INSERT INTO role SET ?",
+              {
+                title: role,
+                salary: pay,
+                department_id: dept,
+              },
+              (err, res) => {
+                if (err) throw err;
+                console.log(`${res.affectedRows} role inserted!\n`);
+
+                initialPrompt();
+              }
+            );
+          });
+      }
+    });
+};
 
 const comingSoon = () => {
   console.log("\n-------------------------- \n");
