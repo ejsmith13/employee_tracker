@@ -55,7 +55,7 @@ const initialPrompt = () => {
           employeeDept();
           break;
         case "View employees by role":
-          comingSoon();
+          employeeRole();
           break;
         case "Add employee":
           comingSoon();
@@ -131,6 +131,50 @@ const employeeDept = () => {
       });
     });
 };
+
+const employeeRole = () => {
+    inquirer
+      .prompt({
+        name: "role",
+        type: "list",
+        message: "Which job role would you like to see?",
+        choices: [
+          "Sales Associate",
+          "Reservation Specialist",
+          "Sales Manager",
+          "HR Specialist",
+          "Recruiter",
+          "Director of HR",
+          "Front Desk Associates",
+          "Bellman",
+          "Night Auditor",
+          "Front Desk Manager",
+          "Maintanence Director",
+          "Engineer",
+          "Director of House Keeping",
+          "House Keeper",
+          "House Man"
+        ],
+      })
+      .then(({ role }) => {
+        console.log(`You chose: ${role}`);
+  
+        let query =
+          "SELECT employee.id, employee.first_name, employee.last_name, role.title, department.department,";
+        query +=
+          "role.salary, employee.manager_id FROM ((role INNER JOIN department ON department.id =";
+        query +=
+          "role.department_id) INNER JOIN employee ON employee.role_id = role.id) WHERE (role.title = ?);";
+  
+        connection.query(query, role, (err, res) => {
+          if (err) throw err;
+          // Log all results of the SELECT statement
+          const table = cTable.getTable(res);
+          console.log(table);
+          initialPrompt();
+        });
+      });
+  };
 
 const comingSoon = () => {
   console.log("\n-------------------------- \n");
