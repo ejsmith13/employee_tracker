@@ -36,6 +36,8 @@ const initialPrompt = () => {
       type: "list",
       choices: [
         "View all employees",
+        "View departments",
+        "View roles and salaries",
         "View employees by department",
         "View employees by role",
         "Add employee",
@@ -50,6 +52,12 @@ const initialPrompt = () => {
       switch (first) {
         case "View all employees":
           viewEmployees();
+          break;
+        case "View departments":
+          viewDept();
+          break;
+        case "View roles and salaries":
+          viewRole();
           break;
         case "View employees by department":
           employeeDept();
@@ -67,7 +75,7 @@ const initialPrompt = () => {
           addRole();
           break;
         case "Update employee role":
-          comingSoon();
+          updateEmployee();
           break;
         case "Exit":
           console.log("Goodbye");
@@ -88,6 +96,37 @@ const viewEmployees = () => {
     "role.salary, employee.manager_id FROM ((role INNER JOIN department ON department.id =";
   query +=
     "role.department_id) INNER JOIN employee ON employee.role_id = role.id);";
+
+  connection.query(query, (err, res) => {
+    if (err) throw err;
+    // Log all results of the SELECT statement
+    const table = cTable.getTable(res);
+    console.log(table);
+    initialPrompt();
+  });
+};
+
+const viewDept = () => {
+  console.log("\n Selecting all Departments...\n");
+
+  let query = "SELECT * from department";
+
+  connection.query(query, (err, res) => {
+    if (err) throw err;
+    // Log all results of the SELECT statement
+    const table = cTable.getTable(res);
+    console.log(table);
+    initialPrompt();
+  });
+};
+
+const viewRole = () => {
+  console.log("\n Selecting all Roles...\n");
+
+  let query =
+    "SELECT role.id, role.title, role.salary, department.department FROM role ";
+  query +=
+    "INNER JOIN department ON department.id = role.department_id ORDER BY department.department, role.title";
 
   connection.query(query, (err, res) => {
     if (err) throw err;
@@ -263,7 +302,9 @@ const addRole = () => {
     ])
     .then(({ dept }) => {
       if (dept === false) {
-        console.log("\n Please add the appropriate Department first \n ------------------------------------------------------\n ")
+        console.log(
+          "\n Please add the appropriate Department first \n ------------------------------------------------------\n "
+        );
         addDept();
       } else {
         inquirer
@@ -302,6 +343,128 @@ const addRole = () => {
             );
           });
       }
+    });
+};
+
+const updateEmployee = () => {
+  inquirer
+    .prompt([
+      {
+        name: "id",
+        type: "input",
+        message:
+          "Please enter employee id of the person you would like to update:",
+      },
+      {
+        name: "roleQ",
+        type: "confirm",
+        message: "Do you know the role ID of the employees new job?",
+      },
+      {
+        name: "roleID",
+        type: "input",
+        message: "Enter the NEW role ID:",
+        when: (answer) => answer.roleQ === true,
+      },
+      {
+        name: "roles",
+        type: "list",
+        message: "Please choose the role:",
+        choices: [
+          "Sales Associate",
+          "Reservation Specialist",
+          "Sales Manager",
+          "HR Specialist",
+          "Recruiter",
+          "Director of HR",
+          "Front Desk Associates",
+          "Bellman",
+          "Night Auditor",
+          "Front Desk Manager",
+          "Maintanence Director",
+          "Engineer",
+          "Director of House Keeping",
+          "House Keeper",
+          "House Man",
+        ],
+        when: (answer) => answer.roleQ === false,
+      },
+    ])
+    .then(({ id, roleQ, roleID, roles }) => {
+      let newRoleId;
+      if (roleQ === true) {
+        newRoleId = roleID;
+      } else {
+        switch (roles) {
+          case "Sales Associate":
+            newRoleId = "1";
+            break;
+          case "Reservation Specialist":
+            newRoleId = "2";
+            break;
+          case "Sales Manager":
+            newRoleId = "3";
+            break;
+          case "HR Specialist":
+            newRoleId = "4";
+            break;
+          case "Recruiter":
+            newRoleId = "5";
+            break;
+          case "Director of HR":
+            newRoleId = "6";
+            break;
+          case "Front Desk Associates":
+            newRoleId = "7";
+            break;
+          case "Bellman":
+            newRoleId = "8";
+            break;
+          case "Night Auditor":
+            newRoleId = "9";
+            break;
+          case "Front Desk Manager":
+            newRoleId = "10";
+            break;
+          case "Maintanence Director":
+            newRoleId = "11";
+            break;
+          case "Engineer":
+            newRoleId = "12";
+            break;
+          case "Director of House Keeping":
+            newRoleId = "13";
+            break;
+          case "House Keeper":
+            newRoleId = "14";
+            break;
+          case "House Man":
+            newRoleId = "15";
+            break;
+          default:
+            console.log("ERROR\nTry again");
+            updateEmployee();
+        }
+      }
+
+      console.log("\nUpdating Employee Role...\n");
+      connection.query(
+        "UPDATE employee SET ? WHERE ?",
+        [
+          {
+            role_id: newRoleId,
+          },
+          {
+            id: id,
+          },
+        ],
+        (err, res) => {
+          if (err) throw err;
+          console.log(`${res.affectedRows} Employee updated!\n`);
+          // Call deleteProduct AFTER the UPDATE completes
+          initialPrompt();
+        }
+      );
     });
 };
 
