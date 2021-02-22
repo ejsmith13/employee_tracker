@@ -1,6 +1,7 @@
 const mysql = require("mysql");
 const inquirer = require("inquirer");
 const cTable = require("console.table");
+let roles = [];
 
 const connection = mysql.createConnection({
   host: "localhost",
@@ -45,6 +46,7 @@ const initialPrompt = () => {
         "Add role",
         "Update employee role",
         "Exit",
+        "test",
       ],
     })
     .then(({ first }) => {
@@ -80,6 +82,9 @@ const initialPrompt = () => {
         case "Exit":
           console.log("Goodbye");
           connection.end();
+          break;
+        case "test":
+          roleChoices();
           break;
         default:
           console.log("Please make a selection");
@@ -347,6 +352,7 @@ const addRole = () => {
 };
 
 const updateEmployee = () => {
+  roleChoices();
   inquirer
     .prompt([
       {
@@ -367,86 +373,26 @@ const updateEmployee = () => {
         when: (answer) => answer.roleQ === true,
       },
       {
-        name: "roles",
+        name: "newRole",
         type: "list",
         message: "Please choose the role:",
-        choices: [
-          "Sales Associate",
-          "Reservation Specialist",
-          "Sales Manager",
-          "HR Specialist",
-          "Recruiter",
-          "Director of HR",
-          "Front Desk Associates",
-          "Bellman",
-          "Night Auditor",
-          "Front Desk Manager",
-          "Maintanence Director",
-          "Engineer",
-          "Director of House Keeping",
-          "House Keeper",
-          "House Man",
-        ],
+
+        choices: roles,
         when: (answer) => answer.roleQ === false,
       },
     ])
-    .then(({ id, roleQ, roleID, roles }) => {
+    .then(({ id, roleQ, roleID, newRole }) => {
       let newRoleId;
       if (roleQ === true) {
         newRoleId = roleID;
       } else {
-        switch (roles) {
-          case "Sales Associate":
-            newRoleId = "1";
-            break;
-          case "Reservation Specialist":
-            newRoleId = "2";
-            break;
-          case "Sales Manager":
-            newRoleId = "3";
-            break;
-          case "HR Specialist":
-            newRoleId = "4";
-            break;
-          case "Recruiter":
-            newRoleId = "5";
-            break;
-          case "Director of HR":
-            newRoleId = "6";
-            break;
-          case "Front Desk Associates":
-            newRoleId = "7";
-            break;
-          case "Bellman":
-            newRoleId = "8";
-            break;
-          case "Night Auditor":
-            newRoleId = "9";
-            break;
-          case "Front Desk Manager":
-            newRoleId = "10";
-            break;
-          case "Maintanence Director":
-            newRoleId = "11";
-            break;
-          case "Engineer":
-            newRoleId = "12";
-            break;
-          case "Director of House Keeping":
-            newRoleId = "13";
-            break;
-          case "House Keeper":
-            newRoleId = "14";
-            break;
-          case "House Man":
-            newRoleId = "15";
-            break;
-          default:
-            console.log("ERROR\nTry again");
-            updateEmployee();
+        for (let i = 0; i < roles.length; i++) {
+          if (roles[i] === newRole) {
+            newRoleId = i + 1;
+          }
         }
       }
-
+      
       console.log("\nUpdating Employee Role...\n");
       connection.query(
         "UPDATE employee SET ? WHERE ?",
@@ -473,4 +419,15 @@ const comingSoon = () => {
   console.log("Coming Soon, please make another choice. \n");
   console.log("-------------------------- \n");
   initialPrompt();
+};
+
+const roleChoices = () => {
+  roles = [];
+  connection.query("Select role.title From role", (err, res) => {
+    if (err) throw err;
+    for (let i = 0; i < res.length; i++) {
+      roles.push(res[i].title);
+    }
+    
+  });
 };
