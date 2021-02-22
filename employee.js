@@ -65,7 +65,10 @@ const initialPrompt = () => {
           employeeDept();
           break;
         case "View employees by role":
-          employeeRole();
+          roleChoices();
+          setTimeout(() => {
+            employeeRole();
+          }, 1000);
           break;
         case "Add employee":
           addEmployee();
@@ -178,28 +181,14 @@ const employeeDept = () => {
 
 const employeeRole = () => {
   inquirer
-    .prompt({
-      name: "role",
-      type: "list",
-      message: "Which job role would you like to see?",
-      choices: [
-        "Sales Associate",
-        "Reservation Specialist",
-        "Sales Manager",
-        "HR Specialist",
-        "Recruiter",
-        "Director of HR",
-        "Front Desk Associates",
-        "Bellman",
-        "Night Auditor",
-        "Front Desk Manager",
-        "Maintanence Director",
-        "Engineer",
-        "Director of House Keeping",
-        "House Keeper",
-        "House Man",
-      ],
-    })
+    .prompt([
+      {
+        name: "role",
+        type: "list",
+        message: "Which job role would you like to see?",
+        choices: roles,
+      },
+    ])
     .then(({ role }) => {
       console.log(`You chose: ${role}`);
 
@@ -384,7 +373,6 @@ const updateEmployee = () => {
         name: "newRole",
         type: "list",
         message: "Please choose the role:",
-
         choices: roles,
         when: (answer) => answer.roleQ === false,
       },
