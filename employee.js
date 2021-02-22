@@ -221,6 +221,7 @@ const employeeRole = () => {
 };
 
 const addEmployee = () => {
+  roleChoices();
   inquirer
     .prompt([
       {
@@ -234,9 +235,10 @@ const addEmployee = () => {
         message: "What is the employee's last name?",
       },
       {
-        name: "role",
-        type: "input",
-        message: "What is the employee's role id? (1-15)",
+        name: "position",
+        type: "list",
+        message: "What is the employee's position?)",
+        choices: roles,
       },
       {
         name: "managerConfirm",
@@ -250,14 +252,20 @@ const addEmployee = () => {
         when: (answers) => answers.managerConfirm === true,
       },
     ])
-    .then(({ first, last, role, manager }) => {
+    .then(({ first, last, position, manager }) => {
+      let newPositionId;
+      for (let i = 0; i < roles.length; i++) {
+        if (roles[i] === position) {
+          newPositionId = i + 1;
+        }
+      }
       console.log("Inserting a new Employee...\n");
       connection.query(
         "INSERT INTO employee SET ?",
         {
           first_name: first,
           last_name: last,
-          role_id: role,
+          role_id: newPositionId,
           manager_id: manager,
         },
         (err, res) => {
@@ -392,7 +400,7 @@ const updateEmployee = () => {
           }
         }
       }
-      
+
       console.log("\nUpdating Employee Role...\n");
       connection.query(
         "UPDATE employee SET ? WHERE ?",
@@ -428,6 +436,5 @@ const roleChoices = () => {
     for (let i = 0; i < res.length; i++) {
       roles.push(res[i].title);
     }
-    
   });
 };
