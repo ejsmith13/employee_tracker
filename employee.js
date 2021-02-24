@@ -2,6 +2,8 @@ const mysql = require("mysql");
 const inquirer = require("inquirer");
 const cTable = require("console.table");
 let roles = [];
+let depts
+
 
 const connection = mysql.createConnection({
   host: "localhost",
@@ -42,11 +44,13 @@ const initialPrompt = () => {
         "View employees by department",
         "View employees by role",
         "Add employee",
-        "Add department",
-        "Add role",
         "Update employee role",
+        "Delete employee",
+        "Add department",
+        "Delete department",
+        "Add role",
+        "Delete role",
         "Exit",
-        "test",
       ],
     })
     .then(({ first }) => {
@@ -62,13 +66,16 @@ const initialPrompt = () => {
           viewRole();
           break;
         case "View employees by department":
-          employeeDept();
+          deptChoices();
+          setTimeout(() => {
+            employeeDept();
+          }, 500);
           break;
         case "View employees by role":
           roleChoices();
           setTimeout(() => {
             employeeRole();
-          }, 1000);
+          }, 500);
           break;
         case "Add employee":
           addEmployee();
@@ -86,8 +93,20 @@ const initialPrompt = () => {
           console.log("Goodbye");
           connection.end();
           break;
-        case "test":
+        case "Delete employee":
+          deleteEmployee();
+          break;
+        case "Delete role":
           roleChoices();
+          setTimeout(() => {
+            deleteRole();
+          }, 500);
+          break;
+        case "Delete department":
+          deptChoices();
+          setTimeout(() => {
+            deleteDepartment();
+          }, 500);
           break;
         default:
           console.log("Please make a selection");
@@ -151,13 +170,7 @@ const employeeDept = () => {
       name: "department",
       type: "list",
       message: "Which department would you like to see?",
-      choices: [
-        "Reservations",
-        "Human Resources",
-        "Front Desk",
-        "Facilities",
-        "House Keeping",
-      ],
+      choices: depts,
     })
     .then(({ department }) => {
       console.log(`You chose: ${department}`);
@@ -410,6 +423,83 @@ const updateEmployee = () => {
     });
 };
 
+const deleteEmployee = () => {
+  inquirer
+    .prompt([
+      {
+        name: "employeeID",
+        message: "What is the id of the employee you would like to delete?",
+        type: "input",
+      },
+    ])
+    .then(({ employeeID }) => {
+      connection.query(
+        "DELETE FROM employee WHERE ?",
+        {
+          id: employeeID,
+        },
+        (err, res) => {
+          if (err) throw err;
+          console.log(`${res.affectedRows} employee deleted!\n`);
+          // Call readProducts AFTER the DELETE completes
+          initialPrompt();
+        }
+      );
+    });
+};
+
+const deleteRole = () => {
+  inquirer
+    .prompt([
+      {
+        name: "role",
+        type: "list",
+        message: "Which job role would you like to delete?",
+        choices: roles,
+      },
+    ])
+    .then(({ role }) => {
+      connection.query(
+        "DELETE FROM role WHERE ?",
+        {
+          title: role,
+        },
+        (err, res) => {
+          if (err) throw err;
+          console.log(`\n ${res.affectedRows} role deleted!\n`);
+          // Call readProducts AFTER the DELETE completes
+          initialPrompt();
+        }
+      );
+    });
+};
+
+const deleteDepartment = () => {
+  inquirer
+    .prompt([
+      {
+        name: "dept",
+        type: "list",
+        message: "Which Department would you like to delete?",
+        choices: depts,
+      },
+    ])
+    .then(({ dept }) => {
+      connection.query(
+        "DELETE FROM department WHERE ?",
+        {
+          department: dept,
+        },
+        (err, res) => {
+          if (err) throw err;
+          console.log(`\n ${res.affectedRows} department deleted!\n`);
+          // Call readProducts AFTER the DELETE completes
+          initialPrompt();
+        }
+      );
+    });
+};
+
 const comingSoon = () => {
   console.log("\n-------------------------- \n");
   console.log("Coming Soon, please make another choice. \n");
@@ -423,6 +513,16 @@ const roleChoices = () => {
     if (err) throw err;
     for (let i = 0; i < res.length; i++) {
       roles.push(res[i].title);
+    }
+  });
+};
+
+const deptChoices = () => {
+  depts = [];
+  connection.query("Select department.department From department", (err, res) => {
+    if (err) throw err;
+    for (let i = 0; i < res.length; i++) {
+      depts.push(res[i].department);
     }
   });
 };
