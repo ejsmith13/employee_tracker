@@ -120,9 +120,9 @@ const viewEmployees = () => {
   let query =
     "SELECT employee.id, employee.first_name, employee.last_name, role.title, department.department,";
   query +=
-    "role.salary, employee.manager_id FROM ((role INNER JOIN department ON department.id =";
+    "role.salary, concat(manager.first_name, ' ', manager.last_name) as manager FROM (((role INNER JOIN department ON department.id =";
   query +=
-    "role.department_id) INNER JOIN employee ON employee.role_id = role.id);";
+    "role.department_id) INNER JOIN employee ON employee.role_id = role.id)LEFT JOIN employee manager on manager.id = employee.manager_id);";
 
   connection.query(query, (err, res) => {
     if (err) throw err;
