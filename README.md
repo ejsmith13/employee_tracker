@@ -88,7 +88,7 @@
   For this project I used:
 
 
-   JavaScript, NodeJS, MySQL, Express.js
+   JavaScript, Node.js, MySQL, Express, InquirerJs
 
   
   
