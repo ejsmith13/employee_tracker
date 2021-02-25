@@ -16,6 +16,7 @@
   * [Tests](#tests)
 
   * [Usage](#usage)
+
   * [Contributing](#contributing)
 
   * [Technologies](#technologies)
@@ -84,7 +85,7 @@
 --------------------------------------
 
  
-  ## Technologies Used
+  ## Technologies:
   For this project I used:
 
 
