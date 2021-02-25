@@ -27,7 +27,7 @@ connection.connect((err) => {
 });
 
 const startScreen = () => {
-  console.log("EMPLOYEE MANAGER SYSTEM");
+  console.log(`\n\n\n\n\n\n"EMPLOYEE MANAGER SYSTEM"\n\n\n\n\n\n`);
   initialPrompt();
 };
 
@@ -239,7 +239,7 @@ const addEmployee = () => {
       {
         name: "position",
         type: "list",
-        message: "What is the employee's position?)",
+        message: "What is the employee's position?",
         choices: roles,
       },
       {
